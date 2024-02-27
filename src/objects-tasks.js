@@ -179,8 +179,26 @@ function makeWord(lettersObject) {
  *    sellTickets([25, 25, 50]) => true
  *    sellTickets([25, 100]) => false (The seller does not have enough money to give change.)
  */
-function sellTickets(/* queue */) {
-  throw new Error('Not implemented');
+function sellTickets(queue) {
+  const newQueue = queue;
+  if (!queue || queue.length === 0) {
+    return true;
+  }
+  let account = 0;
+  for (let i = 0; i < newQueue.length; i += 1) {
+    if (newQueue[i] === 25) {
+      account += 25;
+    }
+    if (newQueue[i] > 25) {
+      account += 25;
+      newQueue[i] -= 25;
+      if (account < newQueue[i]) {
+        return false;
+      }
+      account -= newQueue[i];
+    }
+  }
+  return true;
 }
 
 /**
@@ -196,8 +214,18 @@ function sellTickets(/* queue */) {
  *    console.log(r.height);      // => 20
  *    console.log(r.getArea());   // => 200
  */
-function Rectangle(/* width, height */) {
-  throw new Error('Not implemented');
+function Rectangle(width, height) {
+  class Rectangles {
+    constructor() {
+      this.width = width;
+      this.height = height;
+    }
+
+    getArea() {
+      return this.width * this.height;
+    }
+  }
+  return new Rectangles();
 }
 
 /**
@@ -210,8 +238,8 @@ function Rectangle(/* width, height */) {
  *    [1,2,3]   =>  '[1,2,3]'
  *    { width: 10, height : 20 } => '{"height":10,"width":20}'
  */
-function getJSON(/* obj */) {
-  throw new Error('Not implemented');
+function getJSON(obj) {
+  return JSON.stringify(obj);
 }
 
 /**
@@ -225,8 +253,10 @@ function getJSON(/* obj */) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
+function fromJSON(proto, json) {
+  const initObj = JSON.parse(json);
+  const newObj = Object.create(proto);
+  return Object.assign(newObj, initObj);
 }
 
 /**
@@ -255,10 +285,11 @@ function fromJSON(/* proto, json */) {
  *      { country: 'Russia',  city: 'Saint Petersburg' }
  *    ]
  */
-function sortCitiesArray(/* arr */) {
-  throw new Error('Not implemented');
-}
+function sortCitiesArray(arr) {
+  const newArr = arr.sort((a, b) => a.city.localeCompare(b.city));
 
+  return newArr.sort((a, b) => a.country.localeCompare(b.country));
+}
 /**
  * Groups elements of the specified array by key.
  * Returns multimap of keys extracted from array elements via keySelector callback
@@ -289,8 +320,15 @@ function sortCitiesArray(/* arr */) {
  *    "Poland" => ["Lodz"]
  *   }
  */
-function group(/* array, keySelector, valueSelector */) {
-  throw new Error('Not implemented');
+function group(array, keySelector, valueSelector) {
+  const map = new Map();
+  array.map((obj) => {
+    return map.set(keySelector(obj), []);
+  });
+  for (let i = 0; i < array.length; i += 1) {
+    map.get(keySelector(array[i])).push(valueSelector(array[i]));
+  }
+  return map;
 }
 
 /**
@@ -348,24 +386,49 @@ function group(/* array, keySelector, valueSelector */) {
  */
 
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  element(value) {
+    const element = {};
+    element.element = value;
+    element.stringify = function elementStringify() {
+      return this.element;
+    };
+    return element;
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    const idElement = {};
+    idElement.id = value;
+    idElement.stringify = function elementStringify() {
+      return `#${this.id}`;
+    };
+    return idElement;
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    const classElement = {};
+    classElement.class = value;
+    classElement.stringify = function elementStringify() {
+      return `.${this.class}`;
+    };
+    return classElement;
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    const attrElement = {};
+    attrElement.attr = value;
+    attrElement.stringify = function elementStringify() {
+      return `[${this.attr}]`;
+    };
+    return attrElement;
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    const element = {};
+    element.pseudoClass = value;
+    element.stringify = function elementStringify() {
+      return `:${this.pseudoClass}`;
+    };
+    return element;
   },
 
   pseudoElement(/* value */) {
